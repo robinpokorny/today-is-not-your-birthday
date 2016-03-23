@@ -1,94 +1,86 @@
 (() => {
-  'use strict';
+  'use strict'
+
+  const {
+    Component,
+    createElement,
+    createFactory,
+    PropTypes
+  } = React
 
   const storage = {
     get: (key) => {
       try {
-        return JSON.parse(localStorage.getItem(key));
+        return JSON.parse(localStorage.getItem(key))
       } catch (e) {
-        console.warning(`Can't get item from localStorage: ${key}`);
-        return null;
+        console.warning(`Can't get item from localStorage: ${key}`)
+        return null
       }
     },
 
     set: (key, value) => {
-      localStorage.setItem(key, JSON.stringify(value));
+      localStorage.setItem(key, JSON.stringify(value))
     }
-  };
+  }
 
-  const BirthdayInput = React.createClass({
-    propTypes: {
-      onKeyUp: React.PropTypes.func.isRequired,
-      birthday: React.PropTypes.string
-    },
-
-    render: function() {
-      const div = React.createFactory('div');
-
-      return (
-        div(null,
-          React.createElement('h1', null, 'When were you born?'),
-          React.createElement('input', {
-            placeholder: '15.01.1993',
-            defaultValue: this.props.birthday,
-            onKeyUp: this.props.onKeyUp
-          })
-        )
-      );
+  const isBirthdayToday = (birthday) => {
+    if (!birthday) {
+      return false
     }
-  });
 
-  const TodayLabel = (props) => {
-    return React.createElement('h1', null, props.isItToday
+    const now = new Date()
+    const bd = birthday.split('.')
+
+    return (now.getDate() == bd[0] && now.getMonth() + 1 == bd[1])
+  }
+
+  const BirthdayInput = ({ birthday, onKeyUp }) => (
+    createFactory('div')(null,
+      createElement('h1', null, 'When were you born?'),
+      createElement('input', {
+        placeholder: '15.01.1993',
+        defaultValue: birthday,
+        onKeyUp
+      })
+    )
+  )
+
+  const TodayLabel = ({ birthday }) => (
+    createElement('h1', null, isBirthdayToday(birthday)
       ? 'Okay, HB.'
       : 'Today is NOT your birthday'
-    );
-  };
+  ))
 
-  const Application = React.createClass({
-    getInitialState: function() {
-      const bd = storage.get('birthday');
-      return {
-        birthday: bd,
-        isItToday: this.isBirthdayToday(bd)
-      };
-    },
+  class Application extends Component {
+    constructor() {
+      super()
+      this.state = { birthday: storage.get('birthday') }
+    }
 
-    render: function() {
+    render() {
+      const { birthday } = this.state;
+
       return (
-        this.state.birthday === null
-        ? React.createElement(BirthdayInput, { onKeyUp: this.onBirthdayInputKeyUpHandler })
-        : React.createElement(TodayLabel, { isItToday: this.state.isItToday })
-      );
-    },
+        birthday === null
+          ? createElement(BirthdayInput, { onKeyUp: this.onBirthdayInputKeyUpHandler.bind(this) })
+          : createElement(TodayLabel, { birthday })
+      )
+    }
 
-    onBirthdayInputKeyUpHandler: function(event) {
-      if (event.key === 'Enter') {
-        let birthday = event.currentTarget.value;
+    onBirthdayInputKeyUpHandler({ key, currentTarget }) {
+      if (key === 'Enter') {
+        const birthday = currentTarget.value
+
         if (/^\d{2}\.\d{2}\.\d{4}$/.test(birthday)) {
-          storage.set('birthday', birthday);
-          this.setState({
-            birthday: birthday,
-            isItToday: this.isBirthdayToday(birthday)
-          });
+          storage.set('birthday', birthday)
+          this.setState({ birthday })
         }
       }
-    },
-
-    isBirthdayToday: function(birthday) {
-      if (!birthday) {
-        return false;
-      }
-
-      const now = new Date();
-      const bd = birthday.split('.');
-
-      return (now.getDate() == bd[0] && now.getMonth() + 1 == bd[1]);
     }
-  });
+  }
 
   ReactDOM.render(
-    React.createElement(Application),
+    createElement(Application),
     document.getElementById('root')
-  );
-})();
+  )
+})()
