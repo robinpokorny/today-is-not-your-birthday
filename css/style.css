@@ -6,7 +6,7 @@
   box-sizing: inherit;
 }
 
-html, body {
+html, body, .root {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -16,11 +16,23 @@ body, input {
   font-family: -apple-system, "Helvetica Neue", "Lucida Grande", arial, sans-serif;
 }
 
-body {
+.root {
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
+}
+
+.root--birthday {
+  background: url('../pizza-cat.gif') no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.label--birthday {
+  background: rgba(255,255,255,0.85);
+  padding: 1rem 2rem;
+  border-radius: 0.2rem;
 }
 
 input {

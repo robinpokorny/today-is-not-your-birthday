@@ -4,14 +4,13 @@
   const {
     Component,
     createElement,
-    createFactory,
-    PropTypes
-  } = React
+    createFactory
+  } = window.React
 
   const storage = {
     get: (key) => {
       try {
-        return JSON.parse(localStorage.getItem(key))
+        return JSON.parse(window.localStorage.getItem(key))
       } catch (e) {
         console.warning(`Can't get item from localStorage: ${key}`)
         return null
@@ -19,7 +18,7 @@
     },
 
     set: (key, value) => {
-      localStorage.setItem(key, JSON.stringify(value))
+      window.localStorage.setItem(key, JSON.stringify(value))
     }
   }
 
@@ -45,29 +44,38 @@
     )
   )
 
-  const TodayLabel = ({ birthday }) => (
-    createElement('h1', null, isBirthdayToday(birthday)
+  const TodayLabel = ({ birthday }) => {
+    const birthdayToday = isBirthdayToday(birthday)
+    const text = birthdayToday
       ? 'Okay, HB.'
       : 'Today is NOT your birthday'
-  ))
+    const className = birthdayToday
+      ? 'label label--birthday'
+      : 'label'
+
+    return createElement('h1', { className }, text)
+  }
 
   class Application extends Component {
-    constructor() {
+    constructor () {
       super()
       this.state = { birthday: storage.get('birthday') }
     }
 
-    render() {
-      const { birthday } = this.state;
+    render () {
+      const { birthday } = this.state
 
-      return (
-        birthday === null
-          ? createElement(BirthdayInput, { onKeyUp: this.onBirthdayInputKeyUpHandler.bind(this) })
-          : createElement(TodayLabel, { birthday })
-      )
+      const label = birthday === null
+        ? createElement(BirthdayInput, { onKeyUp: this.onBirthdayInputKeyUpHandler.bind(this) })
+        : createElement(TodayLabel, { birthday })
+      const className = isBirthdayToday(birthday)
+        ? 'root root--birthday'
+        : 'root'
+
+      return createElement('div', { className }, [label])
     }
 
-    onBirthdayInputKeyUpHandler({ key, currentTarget }) {
+    onBirthdayInputKeyUpHandler ({ key, currentTarget }) {
       if (key === 'Enter') {
         const birthday = currentTarget.value
 
@@ -79,8 +87,8 @@
     }
   }
 
-  ReactDOM.render(
+  window.ReactDOM.render(
     createElement(Application),
-    document.getElementById('root')
+    document.getElementsByTagName('body')[0]
   )
 })()
