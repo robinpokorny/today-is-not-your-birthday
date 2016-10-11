@@ -1,8 +1,6 @@
 (() => {
   'use strict'
 
-  const rootElement = document.getElementById('root')
-
   const {
     Component,
     createElement,
@@ -46,11 +44,17 @@
     )
   )
 
-  const TodayLabel = ({ birthday }) => (
-    createElement('h1', null, isBirthdayToday(birthday)
+  const TodayLabel = ({ birthday }) => {
+    const birthdayToday = isBirthdayToday(birthday)
+    const text = birthdayToday
       ? 'Okay, HB.'
       : 'Today is NOT your birthday'
-  ))
+    const className = birthdayToday
+      ? 'label label--birthday'
+      : 'label'
+
+    return createElement('h1', { className }, text)
+  }
 
   class Application extends Component {
     constructor () {
@@ -61,11 +65,14 @@
     render () {
       const { birthday } = this.state
 
-      return (
-        birthday === null
-          ? createElement(BirthdayInput, { onKeyUp: this.onBirthdayInputKeyUpHandler.bind(this) })
-          : createElement(TodayLabel, { birthday })
-      )
+      const label = birthday === null
+        ? createElement(BirthdayInput, { onKeyUp: this.onBirthdayInputKeyUpHandler.bind(this) })
+        : createElement(TodayLabel, { birthday })
+      const className = isBirthdayToday(birthday)
+        ? 'root root--birthday'
+        : 'root'
+
+      return createElement('div', { className }, [label])
     }
 
     onBirthdayInputKeyUpHandler ({ key, currentTarget }) {
@@ -82,6 +89,6 @@
 
   window.ReactDOM.render(
     createElement(Application),
-    rootElement
+    document.getElementsByTagName('body')[0]
   )
 })()
