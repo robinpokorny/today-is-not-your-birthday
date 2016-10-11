@@ -80,7 +80,7 @@
     }
   }
 
-  ReactDOM.render(
+  window.ReactDOM.render(
     createElement(Application),
     rootElement
   )
