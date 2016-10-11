@@ -1,17 +1,18 @@
 (() => {
   'use strict'
 
+  const rootElement = document.getElementById('root')
+
   const {
     Component,
     createElement,
-    createFactory,
-    PropTypes
-  } = React
+    createFactory
+  } = window.React
 
   const storage = {
     get: (key) => {
       try {
-        return JSON.parse(localStorage.getItem(key))
+        return JSON.parse(window.localStorage.getItem(key))
       } catch (e) {
         console.warning(`Can't get item from localStorage: ${key}`)
         return null
@@ -19,7 +20,7 @@
     },
 
     set: (key, value) => {
-      localStorage.setItem(key, JSON.stringify(value))
+      window.localStorage.setItem(key, JSON.stringify(value))
     }
   }
 
@@ -52,13 +53,13 @@
   ))
 
   class Application extends Component {
-    constructor() {
+    constructor () {
       super()
       this.state = { birthday: storage.get('birthday') }
     }
 
-    render() {
-      const { birthday } = this.state;
+    render () {
+      const { birthday } = this.state
 
       return (
         birthday === null
@@ -67,7 +68,7 @@
       )
     }
 
-    onBirthdayInputKeyUpHandler({ key, currentTarget }) {
+    onBirthdayInputKeyUpHandler ({ key, currentTarget }) {
       if (key === 'Enter') {
         const birthday = currentTarget.value
 
@@ -81,6 +82,6 @@
 
   ReactDOM.render(
     createElement(Application),
-    document.getElementById('root')
+    rootElement
   )
 })()
