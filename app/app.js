@@ -12,7 +12,7 @@
       try {
         return JSON.parse(window.localStorage.getItem(key))
       } catch (e) {
-        console.warning(`Can't get item from localStorage: ${key}`)
+        console.warn(`Can't get item from localStorage: ${key}`)
         return null
       }
     },
