@@ -1,6 +1,7 @@
 const { h, app } = hyperapp;
 
 const KEY = 'birthday';
+const now = new Date();
 
 // ==== Utils
 const toMonthDay = date => {
@@ -11,8 +12,6 @@ const toMonthDay = date => {
 
   return `-${month}-${day}`;
 };
-
-const today = toMonthDay(new Date());
 
 // ==== Views
 const NotTodayView = () =>
@@ -57,10 +56,11 @@ app({
   state: {
     birthday: window.localStorage.getItem(KEY),
     dateValue: null,
-    year: new Date().getFullYear()
+    today: toMonthDay(now),
+    year: now.getFullYear()
   },
   view: (state, actions) => {
-    const { birthday } = state;
+    const { birthday, today } = state;
 
     if (!birthday) return SetBirthdayView(state, actions);
     if (birthday === today) return HappyBirthdayView();
