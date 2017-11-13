@@ -1,94 +1,80 @@
-(() => {
-  'use strict'
+const { h, app } = hyperapp;
 
-  const {
-    Component,
-    createElement,
-    createFactory
-  } = window.React
+const KEY = 'birthday';
 
-  const storage = {
-    get: (key) => {
-      try {
-        return JSON.parse(window.localStorage.getItem(key))
-      } catch (e) {
-        console.warn(`Can't get item from localStorage: ${key}`)
-        return null
-      }
-    },
+// ==== Utils
+const toMonthDay = date => {
+  const toTwoDigits = n => String(n).padStart(2, '0');
 
-    set: (key, value) => {
-      window.localStorage.setItem(key, JSON.stringify(value))
-    }
-  }
+  const month = toTwoDigits(date.getMonth() + 1);
+  const day = toTwoDigits(date.getDate());
 
-  const isBirthdayToday = (birthday) => {
-    if (!birthday) {
-      return false
-    }
+  return `-${month}-${day}`;
+};
 
-    const now = new Date()
-    const bd = birthday.split('.')
+const today = toMonthDay(new Date());
 
-    return (now.getDate() == bd[0] && now.getMonth() + 1 == bd[1])
-  }
-
-  const BirthdayInput = ({ birthday, onKeyUp }) => (
-    createFactory('div')(null,
-      createElement('h1', null, 'When were you born?'),
-      createElement('input', {
-        placeholder: '15.01.1993',
-        defaultValue: birthday,
-        onKeyUp
+// ==== Views
+const NotTodayView = () =>
+  h(
+    'div',
+    { class: 'root' },
+    h('h1', { class: 'label' }, 'Today is NOT your birthday')
+  );
+const HappyBirthdayView = () =>
+  h(
+    'div',
+    { class: 'root root--birthday' },
+    h('h1', { class: 'label label--birthday' }, 'Okay, HB.')
+  );
+const SetBirthdayView = ({ dateValue, year }, { setValue, setBirthday }) =>
+  h('div', { class: 'root' }, [
+    h('h1', {}, 'What day is your birthday?'),
+    h(
+      'form',
+      {
+        onsubmit: e => {
+          setBirthday();
+          e.preventDefault();
+        }
+      },
+      h('input', {
+        type: 'date',
+        required: true,
+        value: dateValue,
+        oninput: event => setValue(event.target.value),
+        min: `${year}-01-01`,
+        max: `${year}-12-31`
+      }),
+      h('input', {
+        type: 'submit',
+        hidden: 'true'
       })
     )
-  )
+  ]);
 
-  const TodayLabel = ({ birthday }) => {
-    const birthdayToday = isBirthdayToday(birthday)
-    const text = birthdayToday
-      ? 'Okay, HB.'
-      : 'Today is NOT your birthday'
-    const className = birthdayToday
-      ? 'label label--birthday'
-      : 'label'
+app({
+  state: {
+    birthday: window.localStorage.getItem(KEY),
+    dateValue: null,
+    year: new Date().getFullYear()
+  },
+  view: (state, actions) => {
+    const { birthday } = state;
 
-    return createElement('h1', { className }, text)
+    if (!birthday) return SetBirthdayView(state, actions);
+    if (birthday === today) return HappyBirthdayView();
+    return NotTodayView();
+  },
+  actions: {
+    setBirthday: ({ dateValue }) => () => {
+      if (!dateValue) return;
+
+      const birthday = dateValue.substring(4);
+      window.localStorage.setItem(KEY, birthday);
+
+      return { birthday };
+    },
+    setValue: () => dateValue => ({ dateValue })
   }
-
-  class Application extends Component {
-    constructor () {
-      super()
-      this.state = { birthday: storage.get('birthday') }
-    }
-
-    render () {
-      const { birthday } = this.state
-
-      const label = birthday === null
-        ? createElement(BirthdayInput, { onKeyUp: this.onBirthdayInputKeyUpHandler.bind(this) })
-        : createElement(TodayLabel, { birthday })
-      const className = isBirthdayToday(birthday)
-        ? 'root root--birthday'
-        : 'root'
-
-      return createElement('div', { className }, [label])
-    }
-
-    onBirthdayInputKeyUpHandler ({ key, currentTarget }) {
-      if (key === 'Enter') {
-        const birthday = currentTarget.value
-
-        if (/^\d{2}\.\d{2}\.\d{4}$/.test(birthday)) {
-          storage.set('birthday', birthday)
-          this.setState({ birthday })
-        }
-      }
-    }
-  }
-
-  window.ReactDOM.render(
-    createElement(Application),
-    document.getElementsByTagName('body')[0]
-  )
-})()
+});

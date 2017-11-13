@@ -2,18 +2,24 @@
   box-sizing: border-box;
   height: 100%;
 }
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: inherit;
 }
 
-html, body, .root {
+html,
+body,
+.root {
   margin: 0;
   padding: 0;
   height: 100%;
 }
 
-body, input {
-  font-family: -apple-system, "Helvetica Neue", "Lucida Grande", arial, sans-serif;
+body,
+input {
+  font-family: -apple-system, 'Helvetica Neue', 'Lucida Grande', arial,
+    sans-serif;
   color: #333;
 }
 
@@ -26,7 +32,7 @@ body, input {
 }
 
 .root--birthday {
-  background: url('../pizza-cat.gif') no-repeat;
+  background: url('./pizza-cat.gif') no-repeat;
   background-size: cover;
   background-position: center;
 }
@@ -36,7 +42,7 @@ body, input {
 }
 
 .label--birthday {
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   padding: 1rem 2rem;
   border-radius: 0.2rem;
 }
